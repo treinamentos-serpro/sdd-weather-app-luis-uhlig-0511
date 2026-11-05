@@ -1,79 +1,95 @@
 import { useState } from 'react';
-import type { Unit } from './types/weather';
-import { useWeather } from './hooks/useWeather';
-import SearchBar from './components/SearchBar';
-import UnitToggle from './components/UnitToggle';
+import type { City } from './types/weather';
+import CityResults from './components/CityResults';
 import CurrentWeather from './components/CurrentWeather';
 import ForecastList from './components/ForecastList';
-import LoadingState from './components/states/LoadingState';
-import ErrorState from './components/states/ErrorState';
+import SearchBar from './components/SearchBar';
+import UnitToggle from './components/UnitToggle';
 import EmptyState from './components/states/EmptyState';
+import ErrorState from './components/states/ErrorState';
+import LoadingState from './components/states/LoadingState';
+import LocateButton from './components/LocateButton';
+import { useWeather } from './hooks/useWeather';
 
-/**
- * WeatherView — aplicação completa de previsão do tempo.
- *
- * Construída ao longo do treinamento de Spec-Driven Development com GitHub
- * Copilot, do briefing à entrega.
- */
 export default function App() {
-  const { status, data, error, query, search, retry } = useWeather();
-  const [unit, setUnit] = useState<Unit>('celsius');
+  const {
+    search,
+    weather,
+    selectedCity,
+    unit,
+    setUnit,
+    submitSearch,
+    selectCity,
+    retrySearch,
+    retryWeather,
+  } = useWeather();
+  const [showResults, setShowResults] = useState(true);
+  const [searchId, setSearchId] = useState(0);
+  const [inputResetId, setInputResetId] = useState(0);
+
+  const handleSearch = (term: string) => {
+    setShowResults(true);
+    setSearchId((id) => id + 1);
+    submitSearch(term);
+  };
+
+  const handleSelect = (city: City) => {
+    setShowResults(false);
+    setInputResetId((id) => id + 1);
+    selectCity(city);
+  };
 
   return (
-    <div className="min-h-screen text-white">
-      <header className="border-b border-white/10">
-        <div className="mx-auto flex max-w-5xl flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-2">
-            <span aria-hidden="true" className="text-2xl text-sun">
-              ☀️
-            </span>
-            <span className="text-lg font-bold">WeatherView</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <SearchBar onSearch={search} disabled={status === 'loading'} />
-            <UnitToggle unit={unit} onChange={setUnit} />
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-gradient-to-b from-night-800 to-night-900">
+      <main
+        aria-busy={search.status === 'loading' || weather.status === 'loading'}
+        className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6 sm:px-6 lg:py-10"
+      >
+        <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <h1 className="text-2xl font-bold tracking-tight">SDD Weather</h1>
+          <UnitToggle unit={unit} onChange={setUnit} />
+        </header>
 
-      <main className="mx-auto max-w-5xl space-y-8 px-4 py-8">
-        {status === 'idle' && (
+        <SearchBar key={`search-input-${inputResetId}`} onSearch={handleSearch} />
+        <LocateButton key={`locate-${searchId}`} onLocate={handleSelect} />
+
+        {search.status === 'idle' && weather.status === 'idle' && (
           <EmptyState
-            title="Busque uma cidade para começar"
-            hint="Ex.: Seattle, Lisboa, São Paulo…"
+            title="Busque uma cidade"
+            hint="Digite o nome de uma cidade para ver o clima atual e a previsão de 5 dias."
           />
         )}
-
-        {status === 'loading' && <LoadingState />}
-
-        {status === 'empty' && (
+        {search.status === 'loading' && <LoadingState message="Buscando cidades..." />}
+        {search.status === 'empty' && (
           <EmptyState
-            title={`Nenhuma cidade encontrada para "${query}"`}
-            hint="Verifique a grafia e tente novamente."
+            title="Nenhuma cidade encontrada"
+            hint="Verifique o nome digitado e tente novamente."
           />
         )}
+        {search.status === 'error' && (
+          <ErrorState
+            message="Não foi possível buscar cidades. Verifique sua conexão e tente novamente."
+            onRetry={retrySearch}
+          />
+        )}
+        {search.status === 'success' && showResults && (
+          <CityResults cities={search.data} selectedCity={selectedCity} onSelect={handleSelect} />
+        )}
 
-        {status === 'error' && error && <ErrorState message={error} onRetry={retry} />}
-
-        {status === 'success' && data && (
+        {weather.status === 'loading' && <LoadingState message="Carregando clima..." />}
+        {weather.status === 'error' && (
+          <ErrorState
+            message="Não foi possível carregar o clima desta cidade. Tente novamente."
+            onRetry={retryWeather}
+          />
+        )}
+        {weather.status === 'success' && (
           <>
-            <CurrentWeather city={data.city} current={data.current} unit={unit} />
-            <ForecastList forecast={data.forecast} unit={unit} />
+            <CurrentWeather city={weather.data.city} current={weather.data.current} unit={unit} />
+            <ForecastList days={weather.data.forecast} unit={unit} />
           </>
         )}
       </main>
-
-      <footer className="py-8 text-center text-sm text-white/40">
-        Dados por{' '}
-        <a
-          href="https://open-meteo.com/"
-          target="_blank"
-          rel="noreferrer"
-          className="text-accent-400 hover:underline"
-        >
-          Open-Meteo
-        </a>
-      </footer>
     </div>
   );
 }

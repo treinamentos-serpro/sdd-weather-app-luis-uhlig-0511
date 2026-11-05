@@ -1,44 +1,33 @@
-/**
- * Funções puras de formatação de datas para a previsão.
- */
+// Valor exibido quando a API não devolve o dado (resposta parcial).
+export const UNAVAILABLE = '—';
 
-const WEEKDAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-const MONTHS = [
-  'Jan',
-  'Fev',
-  'Mar',
-  'Abr',
-  'Mai',
-  'Jun',
-  'Jul',
-  'Ago',
-  'Set',
-  'Out',
-  'Nov',
-  'Dez',
-];
+const numberFormatter = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 });
 
-/** Faz parse de uma data ISO (YYYY-MM-DD) como data local, sem fuso. */
-function parseLocalDate(iso: string): Date {
-  const [year, month, day] = iso.split('-').map(Number);
-  return new Date(year, (month ?? 1) - 1, day ?? 1);
+const shortDateFormatter = new Intl.DateTimeFormat('pt-BR', {
+  weekday: 'short',
+  day: '2-digit',
+  month: '2-digit',
+  timeZone: 'UTC',
+});
+
+/** Formata uma medida com unidade (ex.: "12,3 km/h"); `null` vira "—". */
+export function formatMeasure(value: number | null, unit: string): string {
+  if (value === null) {
+    return UNAVAILABLE;
+  }
+  return `${numberFormatter.format(value)} ${unit}`;
 }
 
-/**
- * Rótulo do dia relativo a "hoje":
- * - índice 0 → "Hoje"
- * - índice 1 → "Amanhã"
- * - demais → dia da semana abreviado
- */
-export function getDayLabel(iso: string, index: number): string {
-  if (index === 0) return 'Hoje';
-  if (index === 1) return 'Amanhã';
-  const date = parseLocalDate(iso);
-  return WEEKDAYS[date.getDay()];
+/** Converte uma data ISO (AAAA-MM-DD) em rótulo curto, ex.: "ter., 16/06". */
+export function formatShortDate(isoDate: string): string {
+  return shortDateFormatter.format(new Date(`${isoDate}T00:00:00Z`));
 }
 
-/** Formata a data como "12 Jun". */
-export function getShortDate(iso: string): string {
-  const date = parseLocalDate(iso);
-  return `${date.getDate()} ${MONTHS[date.getMonth()]}`;
+/** Extrai HH:mm de um horário local da API (ex.: "2026-06-16T14:00" -> "14:00"). */
+export function formatLocalTime(localDateTime: string | null): string | null {
+  if (localDateTime === null) {
+    return null;
+  }
+  const time = localDateTime.split('T')[1];
+  return time ? time.slice(0, 5) : null;
 }

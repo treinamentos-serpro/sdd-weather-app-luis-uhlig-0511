@@ -1,28 +1,34 @@
-import type { ForecastDay, Unit } from '../types/weather';
+import type { ForecastDay, TemperatureUnit } from '../types/weather';
+import { formatMeasure, formatShortDate } from '../lib/format';
 import { formatTemperature } from '../lib/temperature';
 import { getWeatherIcon, getWeatherLabel } from '../lib/weatherCodes';
-import { getDayLabel, getShortDate } from '../lib/format';
+import ValueText from './ValueText';
 
 interface ForecastCardProps {
   day: ForecastDay;
-  index: number;
-  unit: Unit;
+  unit: TemperatureUnit;
 }
 
-/** Card de um dia da previsão. */
-export default function ForecastCard({ day, index, unit }: ForecastCardProps) {
+export default function ForecastCard({ day, unit }: ForecastCardProps) {
   return (
-    <li className="flex flex-col items-center gap-2 rounded-xl border border-white/10 bg-white/5 p-4 text-center backdrop-blur-md">
-      <p className="font-semibold">{getDayLabel(day.date, index)}</p>
-      <p className="text-xs text-white/50">{getShortDate(day.date)}</p>
-      <span aria-hidden="true" className="text-3xl" title={getWeatherLabel(day.weatherCode)}>
+    <li className="flex flex-col items-center gap-2 rounded-2xl border border-white/10 bg-white/5 p-4 text-center shadow-glass backdrop-blur-md">
+      <p className="text-sm font-medium capitalize text-white/80">{formatShortDate(day.date)}</p>
+      <span aria-hidden="true" className="text-3xl">
         {getWeatherIcon(day.weatherCode)}
       </span>
-      <p className="text-sm">
-        <span className="font-semibold">{formatTemperature(day.max, unit)}</span>{' '}
-        <span className="text-white/50">{formatTemperature(day.min, unit)}</span>
+      <p className="text-xs text-white/70">{getWeatherLabel(day.weatherCode)}</p>
+      <p className="font-semibold">
+        <span className="text-sun">
+          <ValueText value={formatTemperature(day.maximumC, unit)} />
+        </span>
+        <span className="text-white/50"> / </span>
+        <span>
+          <ValueText value={formatTemperature(day.minimumC, unit)} />
+        </span>
       </p>
-      <p className="text-xs text-accent-400">💧 {day.precipitationProbability}%</p>
+      <p className="text-xs text-white/60">
+        Chuva: <ValueText value={formatMeasure(day.precipitationMm, 'mm')} />
+      </p>
     </li>
   );
 }
