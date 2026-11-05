@@ -31,7 +31,15 @@ jobs:
         run: pnpm test
 
       - name: Install Playwright browsers
-        run: pnpm exec playwright install --with-deps chromium webkit
+        timeout-minutes: 20
+        run: |
+          for attempt in 1 2 3; do
+            if timeout 480 pnpm exec playwright install --with-deps chromium webkit; then
+              exit 0
+            fi
+            echo "Tentativa $attempt falhou, repetindo..."
+          done
+          exit 1
 
       - name: E2E tests
         run: pnpm test:e2e
