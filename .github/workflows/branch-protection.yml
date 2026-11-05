@@ -32,15 +32,6 @@ jobs:
     if: ${{ !github.event.repository.is_template }}
     runs-on: ubuntu-26.04
     steps:
-      - name: Validar token de administração
-        env:
-          SETUP_TOKEN: ${{ secrets.SETUP_TOKEN }}
-        run: |
-          if [ -z "$SETUP_TOKEN" ]; then
-            echo "::error::Secret 'SETUP_TOKEN' ausente. Crie um PAT com 'Administration: write' e 'Contents: read' (ou PAT clássico com escopo 'repo') e adicione como secret 'SETUP_TOKEN' em Settings → Secrets and variables → Actions. O workflow não se desabilitará até isso ser configurado; basta dar um novo push na main depois."
-            exit 1
-          fi
-
       - name: Habilitar proteção da branch main
         env:
           GH_TOKEN: ${{ secrets.SETUP_TOKEN }}
