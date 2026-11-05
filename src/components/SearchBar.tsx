@@ -1,47 +1,60 @@
-import { useState, type FormEvent } from 'react';
+import { type FormEvent, useId, useState } from 'react';
 
 interface SearchBarProps {
-  onSearch: (city: string) => void;
+  onSearch: (term: string) => void;
   disabled?: boolean;
 }
 
-/** Barra de busca de cidade. Bloqueia submit com input vazio. */
-export default function SearchBar({ onSearch, disabled }: SearchBarProps) {
-  const [value, setValue] = useState('');
+export default function SearchBar({ onSearch, disabled = false }: SearchBarProps) {
+  const [term, setTerm] = useState('');
+  const [hint, setHint] = useState<string | null>(null);
+  const inputId = useId();
+  const hintId = useId();
 
-  function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    const trimmed = value.trim();
-    if (!trimmed) return;
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const trimmed = term.trim();
+
+    if (trimmed === '') {
+      setHint('Digite o nome de uma cidade para buscar.');
+      return;
+    }
+
+    setHint(null);
     onSearch(trimmed);
   }
 
   return (
-    <form role="search" onSubmit={handleSubmit} className="w-full max-w-md">
-      <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 backdrop-blur-md focus-within:border-accent-500">
-        <span aria-hidden="true" className="text-white/50">
-          🔍
-        </span>
-        <label htmlFor="city-search" className="sr-only">
-          Buscar cidade
-        </label>
+    <form role="search" onSubmit={handleSubmit} className="flex w-full flex-col gap-2">
+      <label htmlFor={inputId} className="text-sm font-medium text-white/80">
+        Buscar cidade
+      </label>
+      <div className="flex gap-2">
         <input
-          id="city-search"
-          type="text"
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          placeholder="Buscar cidade…"
+          id={inputId}
+          type="search"
+          value={term}
+          onChange={(event) => setTerm(event.target.value)}
+          placeholder="Ex.: São Paulo"
           autoComplete="off"
-          className="flex-1 bg-transparent text-white placeholder-white/40 outline-none"
+          disabled={disabled}
+          aria-invalid={hint !== null}
+          aria-describedby={hint !== null ? hintId : undefined}
+          className="h-11 min-w-0 flex-1 rounded-xl border border-white/10 bg-white/5 px-4 text-white placeholder:text-white/40 backdrop-blur-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400"
         />
         <button
           type="submit"
-          disabled={disabled || !value.trim()}
-          className="rounded-lg bg-accent-500 px-4 py-1.5 text-sm font-semibold text-white transition hover:bg-accent-600 disabled:cursor-not-allowed disabled:opacity-50"
+          disabled={disabled}
+          className="h-11 rounded-xl bg-accent-600 px-5 font-semibold text-white transition hover:bg-accent-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400 disabled:opacity-50"
         >
           Buscar
         </button>
       </div>
+      {hint !== null && (
+        <p id={hintId} className="text-sm text-sun">
+          {hint}
+        </p>
+      )}
     </form>
   );
 }

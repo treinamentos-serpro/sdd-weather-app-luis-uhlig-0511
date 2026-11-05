@@ -113,11 +113,11 @@ A experiência prioriza consultas rápidas em dispositivos móveis e também ate
 
 - Autenticação, contas de usuário ou sincronização de preferências em servidor.
 - Geolocalização automática.
-- Favoritos, histórico de cidades ou persistência entre sessões na primeira versão, enquanto a decisão de persistência local estiver em aberto.
+- Favoritos, histórico de cidades ou persistência entre sessões na primeira versão.
 - Previsão horária ou intradiária.
 - Idiomas além de pt-BR.
 - Notificações push, alertas meteorológicos ou recomendações personalizadas.
-- Garantia de uso offline; comportamento com dados em cache permanece em aberto.
+- Garantia de uso offline; dados em cache não são exibidos nesta versão.
 
 ## Open Questions
 
@@ -127,3 +127,12 @@ A experiência prioriza consultas rápidas em dispositivos móveis e também ate
 4. **Quais são os tempos máximos aceitáveis para busca de cidade e consulta meteorológica?** Impacto: sem limites, os estados de timeout e as metas de desempenho não são totalmente verificáveis.
 5. **Quais navegadores e versões específicos devem ser suportados além do alvo geral de navegadores evergreen?** Impacto: define a matriz de compatibilidade e testes.
 6. **A busca deve apresentar resultados enquanto a pessoa digita ou apenas após uma ação explícita, e há limite de resultados?** Impacto: altera o fluxo de seleção, a velocidade percebida e a desambiguação.
+
+## Decisões aprovadas
+
+1. **Persistência local:** não há persistência; cidade e unidade não são salvas, e a unidade inicial é Celsius.
+2. **Dados antigos em falha de rede:** não são exibidos; a tela mostra erro com nova tentativa.
+3. **Atualização e fuso horário:** horário da observação e datas no fuso retornado pela API (`timezone=auto`).
+4. **Limites de tempo:** 5 s para busca de cidade e 10 s para consulta meteorológica.
+5. **Navegadores:** duas últimas versões de Chrome, Edge, Firefox e Safari.
+6. **Busca:** envio explícito (Enter ou botão), no máximo 10 resultados, sem busca enquanto digita.

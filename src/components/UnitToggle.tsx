@@ -1,38 +1,38 @@
-import type { Unit } from '../types/weather';
+import type { TemperatureUnit } from '../types/weather';
 
 interface UnitToggleProps {
-  unit: Unit;
-  onChange: (unit: Unit) => void;
+  unit: TemperatureUnit;
+  onChange: (unit: TemperatureUnit) => void;
 }
 
-/** Alternador de unidade Celsius/Fahrenheit, acessível por teclado. */
+const OPTIONS: { value: TemperatureUnit; label: string }[] = [
+  { value: 'celsius', label: '°C' },
+  { value: 'fahrenheit', label: '°F' },
+];
+
 export default function UnitToggle({ unit, onChange }: UnitToggleProps) {
   return (
     <div
       role="group"
       aria-label="Unidade de temperatura"
-      className="inline-flex rounded-lg border border-white/10 bg-white/5 p-1 backdrop-blur-md"
+      className="inline-flex gap-1 rounded-xl border border-white/10 bg-white/5 p-1 backdrop-blur-md"
     >
-      <button
-        type="button"
-        aria-pressed={unit === 'celsius'}
-        onClick={() => onChange('celsius')}
-        className={`rounded-md px-3 py-1 text-sm font-semibold transition ${
-          unit === 'celsius' ? 'bg-accent-500 text-white' : 'text-white/60 hover:text-white'
-        }`}
-      >
-        °C
-      </button>
-      <button
-        type="button"
-        aria-pressed={unit === 'fahrenheit'}
-        onClick={() => onChange('fahrenheit')}
-        className={`rounded-md px-3 py-1 text-sm font-semibold transition ${
-          unit === 'fahrenheit' ? 'bg-accent-500 text-white' : 'text-white/60 hover:text-white'
-        }`}
-      >
-        °F
-      </button>
+      {OPTIONS.map((option) => {
+        const isActive = option.value === unit;
+        return (
+          <button
+            key={option.value}
+            type="button"
+            aria-pressed={isActive}
+            onClick={() => onChange(option.value)}
+            className={`h-11 min-w-14 rounded-lg px-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400 ${
+              isActive ? 'bg-accent-600 text-white' : 'text-white/70 hover:text-white'
+            }`}
+          >
+            {option.label}
+          </button>
+        );
+      })}
     </div>
   );
 }
