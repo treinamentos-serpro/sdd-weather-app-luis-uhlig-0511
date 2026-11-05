@@ -24,7 +24,7 @@ export default function CityResults({ cities, selectedCity, onSelect }: CityResu
       ref={sectionRef}
       tabIndex={-1}
       aria-label="Resultados da busca"
-      className="flex flex-col gap-2 focus:outline-none"
+      className="flex flex-col gap-2 focus:outline focus:outline-2 focus:outline-accent-400 focus:outline-offset-2"
     >
       <ul className="flex flex-col gap-2">
         {cities.map((city) => {

@@ -5,6 +5,7 @@ on:
     paths:
       - 'tasks/**'
       - 'src/**'
+      - '.github/pull_request_template.md'
 
 jobs:
   validate-tasks:

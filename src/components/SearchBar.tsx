@@ -40,7 +40,7 @@ export default function SearchBar({ onSearch, disabled = false }: SearchBarProps
           disabled={disabled}
           aria-invalid={hint !== null}
           aria-describedby={hint !== null ? hintId : undefined}
-          className="h-11 min-w-0 flex-1 rounded-xl border border-white/10 bg-white/5 px-4 text-white placeholder:text-white/40 backdrop-blur-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400"
+          className="h-11 min-w-0 flex-1 rounded-xl border border-white/10 bg-white/5 px-4 text-white placeholder:text-white/70 backdrop-blur-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400"
         />
         <button
           type="submit"

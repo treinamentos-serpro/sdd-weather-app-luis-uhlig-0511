@@ -2,7 +2,6 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import App from '../../src/App';
-import { readSavedCity, saveCity } from '../../src/lib/selectedCityStorage';
 import { fetchWeather, reverseGeocode, searchCities, WeatherRequestError } from '../../src/services/weatherService';
 import type { City, WeatherSnapshot } from '../../src/types/weather';
 
@@ -52,6 +51,7 @@ beforeEach(() => {
   fetchWeatherMock.mockReset();
   reverseGeocodeMock.mockReset();
   reverseGeocodeMock.mockResolvedValue(null);
+  localStorage.clear();
 });
 
 afterEach(() => {
@@ -62,6 +62,7 @@ async function searchAndSelectParis(user: ReturnType<typeof userEvent.setup>) {
   searchCitiesMock.mockResolvedValue([PARIS]);
   fetchWeatherMock.mockResolvedValue(SNAPSHOT);
   await user.type(screen.getByRole('searchbox', { name: 'Buscar cidade' }), 'Paris{Enter}');
+  expect(await screen.findByRole('region', { name: 'Resultados da busca' })).toHaveFocus();
   await user.click(await screen.findByRole('button', { name: /Paris/ }));
   await screen.findByRole('heading', { level: 2, name: 'Paris' });
 }
@@ -187,7 +188,7 @@ describe('App', () => {
     expect(await screen.findByRole('status')).toHaveTextContent('Buscando cidades...');
   });
 
-  it('usa a localização do navegador e salva a cidade no localStorage', async () => {
+  it('usa a localização do navegador sem persistir a cidade', async () => {
     const user = userEvent.setup();
     stubGeolocation((success) => success({ coords: { latitude: -23.55, longitude: -46.63 } }));
     reverseGeocodeMock.mockResolvedValue({
@@ -206,7 +207,7 @@ describe('App', () => {
       expect.objectContaining({ latitude: -23.55, longitude: -46.63 }),
       expect.anything(),
     );
-    expect(readSavedCity()?.name).toBe('São Paulo');
+    expect(localStorage.getItem('sdd_weather_city')).toBeNull();
   });
 
   it('limpa o campo de busca ao usar a localização', async () => {
@@ -248,15 +249,13 @@ describe('App', () => {
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
-  it('restaura a cidade salva no localStorage ao abrir o app', async () => {
-    saveCity(PARIS);
-    fetchWeatherMock.mockResolvedValue(SNAPSHOT);
+  it('ignora uma cidade persistida e inicia sem seleção', () => {
+    localStorage.setItem('sdd_weather_city', JSON.stringify(PARIS));
     render(<App />);
 
-    expect(await screen.findByRole('heading', { level: 2, name: 'Paris' })).toBeInTheDocument();
-    expect(fetchWeatherMock).toHaveBeenCalledTimes(1);
+    expect(screen.getByText('Busque uma cidade')).toBeInTheDocument();
+    expect(fetchWeatherMock).not.toHaveBeenCalled();
     expect(screen.queryByRole('region', { name: 'Resultados da busca' })).not.toBeInTheDocument();
-    expect(screen.queryByText('Busque uma cidade')).not.toBeInTheDocument();
   });
 });
 
