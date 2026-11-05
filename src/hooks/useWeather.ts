@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { readSavedCity, saveCity } from '../lib/selectedCityStorage';
 import { fetchWeather, searchCities, WeatherRequestError } from '../services/weatherService';
 import type { AsyncState, City, TemperatureUnit, WeatherSnapshot } from '../types/weather';
 
@@ -69,21 +68,11 @@ export function useWeather() {
 
   const selectCity = useCallback(
     (city: City) => {
-      saveCity(city);
       setSelectedCity(city);
       void loadWeather(city);
     },
     [loadWeather],
   );
-
-  useEffect(() => {
-    const saved = readSavedCity();
-    if (saved === null) {
-      return;
-    }
-    setSelectedCity(saved);
-    void loadWeather(saved);
-  }, [loadWeather]);
 
   const retrySearch = useCallback(() => {
     void runSearch(searchTermRef.current);

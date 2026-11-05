@@ -4,11 +4,15 @@
 
 <!-- Ex.: Module 05 — Building the UI -->
 
+### Por que esta mudança é necessária?
+
+<!-- Explique o problema ou objetivo atendido -->
+
 ### Fluxo SDD
 
-- [ ] Existe especificação correspondente em `specs/`
-- [ ] Existe plano técnico em `plans/`
-- [ ] Existe(m) tarefa(s) em `tasks/` cobrindo esta mudança
+- Spec: <!-- link para specs/... -->
+- Plan: <!-- link para plans/... -->
+- Tasks: <!-- link para tasks/... -->
 
 ### Checklist de qualidade
 
@@ -21,7 +25,11 @@
 
 ### O que mudou?
 
-<!-- Descreva as mudanças e como validá-las -->
+<!-- Resuma as mudanças -->
+
+### Como testar?
+
+<!-- Liste os comandos e os passos manuais necessários -->
 
 ### Critérios de aceite atendidos
 
